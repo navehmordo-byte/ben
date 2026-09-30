@@ -105,6 +105,14 @@ const Sound = (function () {
     tone(t, 950 * pitch, 0.06, { to: 420 * pitch, gain: 0.35, pan });
     noise(t, 0.03, { freq: 2200, q: 2, gain: 0.25 });
   };
+  const bikeBell = (t) => {
+    // פעמון אופניים: כמה טונים מתכתיים שדועכים, בשתי מכות מהירות
+    [0, 0.09].forEach((d) => {
+      tone(t + d, 2350, 0.9, { gain: 0.14 });
+      tone(t + d, 3170, 0.6, { gain: 0.08 });
+      tone(t + d, 5420, 0.3, { gain: 0.04 });
+    });
+  };
   const pingTick = (t, freq) => tone(t, freq, 0.04, { to: freq * 0.8, gain: 0.3, type: "triangle" });
   const applause = (t, dur) => {
     noise(t, dur, { freq: 2500, q: 0.6, gain: 0.12, swell: 0.3 });
@@ -146,6 +154,17 @@ const Sound = (function () {
       applause(t + 2.2, 1.2);
       return 3.2;
     },
+    cycling(t) {
+      bikeBell(t);
+      bikeBell(t + 0.55);
+      // גלגל חופשי: טיק-טיק-טיק שהולך ומאט
+      let dt = 1.1;
+      for (let k = 0; k < 22; k++) {
+        noise(t + dt, 0.012, { freq: 5000, q: 4, gain: 0.18 });
+        dt += 0.035 + k * 0.004;
+      }
+      return 2.6;
+    },
     pingpong(t) {
       const times = [0, 0.32, 0.58, 0.8, 0.98, 1.14, 1.28, 1.41, 1.53];
       times.forEach((dt, k) => pingTick(t + dt, k % 2 ? 1300 : 1900));
@@ -159,7 +178,8 @@ const Sound = (function () {
     basketball(t) { buzzer(t, 1.5); },
     swimming(t) { [0, 0.5].forEach((d) => { tone(t + d, 1320, 1.4, { gain: 0.2 }); tone(t + d, 3300, 0.8, { gain: 0.06 }); }); },
     tennis(t) { fanfare(t, [72, 76, 79, 84]); applause(t + 0.4, 1.8); },
-    pingpong(t) { fanfare(t, [67, 71, 74, 79]); }
+    pingpong(t) { fanfare(t, [67, 71, 74, 79]); },
+    cycling(t) { bikeBell(t); bikeBell(t + 0.4); bikeBell(t + 0.8); applause(t + 1, 2); }
   };
 
   // ---------- מוזיקת רקע ----------
@@ -169,7 +189,8 @@ const Sound = (function () {
     basketball: { bpm: 94,  root: 50, chords: [[0, 3, 7], [5, 8, 12], [-4, 0, 3], [-5, -2, 2]], snare: true, swing: true },
     swimming:   { bpm: 104, root: 55, chords: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]], snare: false },
     tennis:     { bpm: 112, root: 60, chords: [[0, 4, 7], [-3, 0, 4], [5, 9, 12], [7, 11, 14]], snare: true },
-    pingpong:   { bpm: 124, root: 52, chords: [[0, 3, 7], [-2, 2, 5], [-4, 0, 3], [-2, 2, 5]], snare: true }
+    pingpong:   { bpm: 124, root: 52, chords: [[0, 3, 7], [-2, 2, 5], [-4, 0, 3], [-2, 2, 5]], snare: true },
+    cycling:    { bpm: 120, root: 53, chords: [[0, 4, 7], [5, 9, 12], [-3, 0, 4], [7, 11, 14]], snare: true }
   };
 
   let music = null;
