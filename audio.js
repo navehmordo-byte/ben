@@ -242,6 +242,14 @@ const Sound = (function () {
       tone(t, 1400, 0.035, { to: 700, gain: 0.15 });
       noise(t, 0.015, { freq: 4000, gain: 0.05 });
     }),
+    correct: () => sfx((t) => { tone(t, midi(76), 0.15, { type: "triangle", gain: 0.25 }); tone(t + 0.1, midi(83), 0.35, { type: "triangle", gain: 0.25 }); }),
+    wrong: () => sfx((t) => { tone(t, 180, 0.35, { type: "sawtooth", gain: 0.12, hold: true, lowpass: 900 }); tone(t, 185, 0.35, { type: "square", gain: 0.06, hold: true, lowpass: 900 }); }),
+    medal: (kind) => sfx((t) => {
+      if (kind === "gold") { fanfare(t, [67, 72, 76, 79, 84], 0.14); applause(t + 0.6, 2.5); }
+      else if (kind === "silver") fanfare(t, [67, 72, 76, 79], 0.14);
+      else if (kind === "bronze") fanfare(t, [67, 72, 76], 0.16);
+      else tone(t, midi(64), 0.5, { type: "triangle", gain: 0.2, to: midi(60) });
+    }),
     intro: (id) => sfx((t) => (INTROS[id] || INTROS.football)(t)),
     end: (id) => sfx((t) => (ENDS[id] || ((tt) => fanfare(tt, [72, 76, 79, 84])))(t)),
     startMusic,

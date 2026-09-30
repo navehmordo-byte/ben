@@ -22,6 +22,7 @@
 
   function parseHash() {
     const [sportId, tabId] = location.hash.replace("#", "").split("/");
+    if (sportId === "quiz") return { quiz: true, sport: SPORTS[0], tab: TABS[0] };
     const sport = SPORTS.find((s) => s.id === sportId) || SPORTS[0];
     const tab = TABS.find((t) => t.id === tabId) || TABS[0];
     return { sport, tab };
@@ -33,9 +34,10 @@
 
   function renderNav(active) {
     nav.innerHTML = SPORTS.map(
-      (s) => `<button class="sport-btn${s.id === active.id ? " active" : ""}" data-sport="${s.id}" aria-current="${s.id === active.id}">
+      (s) => `<button class="sport-btn${s.id === active ? " active" : ""}" data-sport="${s.id}" aria-current="${s.id === active}">
         <span class="sport-icon">${s.icon}</span><span>${esc(s.name)}</span></button>`
-    ).join("");
+    ).join("") + `<button class="sport-btn quiz-nav${active === "quiz" ? " active" : ""}" data-quiz aria-current="${active === "quiz"}">
+        <span class="sport-icon">🏆</span><span>שאלון</span></button>`;
     // במובייל התפריט נגלל, אז מוודאים שהספורט הנבחר נראה
     const cur = nav.querySelector(".active");
     if (cur) nav.scrollLeft += cur.getBoundingClientRect().left - nav.getBoundingClientRect().left - (nav.clientWidth - cur.offsetWidth) / 2;
@@ -224,10 +226,22 @@
 
   function render() {
     stopPlayer();
-    const { sport, tab } = parseHash();
+    const { quiz, sport, tab } = parseHash();
+    if (quiz) {
+      document.documentElement.style.setProperty("--accent", "#d97706");
+      document.title = "שאלון | עולם הספורט";
+      renderNav("quiz");
+      hero.innerHTML = `<div class="hero-icon">🏆</div>
+        <div><h2>שאלון ספורט</h2><p>בודקים כמה למדת על כל הספורטים באתר, ומנסים לזכות במדליה.</p></div>`;
+      tabsEl.innerHTML = "";
+      tabsEl.hidden = true;
+      renderQuiz(content);
+      return;
+    }
+    tabsEl.hidden = false;
     document.documentElement.style.setProperty("--accent", sport.color);
     document.title = `${sport.name}: ${tab.label} | עולם הספורט`;
-    renderNav(sport);
+    renderNav(sport.id);
     renderHero(sport);
     renderTabs(sport, tab);
     if (tab.id === "basics") content.innerHTML = renderBasics(sport);
@@ -239,6 +253,7 @@
   }
 
   nav.addEventListener("click", (e) => {
+    if (e.target.closest("[data-quiz]")) { location.hash = "quiz"; return; }
     const b = e.target.closest("[data-sport]");
     if (b) go(b.dataset.sport, "basics");
   });

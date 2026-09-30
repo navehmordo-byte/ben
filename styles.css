@@ -135,6 +135,81 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 .rules li { margin: 6px 0; }
 .rules li::marker { color: var(--accent); }
 
+.tabs[hidden] { display: none; }
+
+/* ---------- שאלון ---------- */
+.quiz-nav { border-color: #d97706; }
+.quiz-card { position: relative; text-align: center; margin-top: 20px; }
+.quiz-sfx {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+.quiz-big { font-size: 4rem; animation: bounce 2s ease-in-out infinite; }
+.quiz-title { margin: 8px 0; font-size: 1.6rem; }
+.quiz-sub { color: var(--muted); margin: 0 0 16px; }
+.medal-list { list-style: none; padding: 0; margin: 0 auto 20px; display: inline-grid; gap: 6px; text-align: start; }
+.medal-list span { font-size: 1.4rem; margin-inline-end: 6px; }
+
+.quiz-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  background: var(--border);
+  color: var(--text);
+  transition: transform 0.15s;
+}
+.quiz-btn.primary { background: var(--accent); color: #fff; }
+.quiz-btn:hover { transform: translateY(-2px); }
+
+.quiz-progress { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin: 28px 0 8px; }
+.quiz-progress-fill { height: 100%; background: var(--accent); transition: width 0.4s; }
+.quiz-meta { color: var(--muted); font-size: 0.9rem; }
+.quiz-sport { font-size: 3rem; margin: 8px 0 0; }
+.quiz-q { font-size: 1.3rem; margin: 8px 0 20px; }
+
+.quiz-options { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+.quiz-opt {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 14px 10px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  transition: all 0.15s;
+}
+.quiz-options.yesno .quiz-opt { font-size: 1.3rem; padding: 18px 10px; }
+.quiz-opt:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+.quiz-opt:disabled { cursor: default; opacity: 0.6; }
+.quiz-opt.correct { border-color: #16a34a; background: rgba(22, 163, 74, 0.15); opacity: 1; }
+.quiz-opt.wrong { border-color: #dc2626; background: rgba(220, 38, 38, 0.15); opacity: 1; animation: shake 0.4s; }
+
+.quiz-feedback:not(:empty) { margin-top: 18px; animation: slideUp 0.35s ease; }
+.quiz-verdict { font-weight: 700; font-size: 1.1rem; }
+.quiz-verdict.ok { color: #16a34a; }
+.quiz-verdict.bad { color: #dc2626; }
+.quiz-explain { color: var(--muted); margin: 6px 0 14px; }
+
+.quiz-result { padding-top: 32px; }
+.medal-icon { font-size: 7rem; line-height: 1.1; display: inline-block; animation: medalIn 0.9s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.quiz-result.gold .medal-icon { filter: drop-shadow(0 0 24px rgba(250, 204, 21, 0.8)); }
+.quiz-result.silver .medal-icon { filter: drop-shadow(0 0 20px rgba(203, 213, 225, 0.8)); }
+.quiz-result.bronze .medal-icon { filter: drop-shadow(0 0 18px rgba(217, 119, 6, 0.6)); }
+.quiz-score { font-size: 2rem; font-weight: 800; color: var(--accent); }
+.quiz-message { font-size: 1.15rem; margin: 8px auto 20px; max-width: 460px; }
+@keyframes medalIn {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to { transform: scale(1) rotate(0); opacity: 1; }
+}
+
 /* ---------- ציר זמן ---------- */
 .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
 .timeline::before {
@@ -328,6 +403,9 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 
 /* ---------- מובייל ---------- */
 @media (max-width: 600px) {
+  .quiz-options { grid-template-columns: 1fr; }
+  .quiz-options.yesno { grid-template-columns: 1fr 1fr; }
+  .quiz-q { font-size: 1.15rem; }
   .logo { font-size: 1.2rem; }
   .hero { padding: 16px; }
   .hero h2 { font-size: 1.4rem; }
