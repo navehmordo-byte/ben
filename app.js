@@ -33,6 +33,9 @@
       (s) => `<button class="sport-btn${s.id === active.id ? " active" : ""}" data-sport="${s.id}" aria-current="${s.id === active.id}">
         <span class="sport-icon">${s.icon}</span><span>${esc(s.name)}</span></button>`
     ).join("");
+    // במובייל התפריט נגלל, אז מוודאים שהספורט הנבחר נראה
+    const cur = nav.querySelector(".active");
+    if (cur) nav.scrollLeft += cur.getBoundingClientRect().left - nav.getBoundingClientRect().left - (nav.clientWidth - cur.offsetWidth) / 2;
   }
 
   function renderHero(sport) {
