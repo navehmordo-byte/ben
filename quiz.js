@@ -1,7 +1,10 @@
 /*
- * השאלון: 20 שאלות על כל הספורטים באתר.
+ * השאלון: מאגר שאלות על כל הספורטים באתר. בכל ניסיון נבחרות QUIZ_LENGTH שאלות.
  * type: "yesno" (כן/לא) או "choice" (בחירה מתוך כמה תשובות).
  */
+const QUIZ_LENGTH = 20;
+const MIN_PER_SPORT = 3;
+
 const QUIZ = [
   // ⚽ כדורגל
   { sport: "football", type: "yesno", q: "בכדורגל, מותר לשוער לגעת בכדור עם הידיים בתוך הרחבה שלו?", answer: "כן", explain: "השוער הוא השחקן היחיד שמותר לו, ורק בתוך הרחבה." },
@@ -31,12 +34,18 @@ const QUIZ = [
   // 🏓 פינג-פונג
   { sport: "pingpong", type: "choice", q: "עד כמה נקודות משחקים משחקון בפינג-פונג?", options: ["7", "11", "15", "21"], answer: "11", explain: "עד 11, בהפרש של 2. פעם זה היה 21." },
   { sport: "pingpong", type: "yesno", q: "בפינג-פונג, ההגשה עוברת לשחקן השני כל 2 נקודות?", answer: "כן", explain: "כל 2 נקודות, ובמצב 10:10 כל נקודה." },
-  { sport: "pingpong", type: "choice", q: "מאיפה הגיע השם \"פינג-פונג\"?", options: ["משם של ממציא", "מהצליל של הכדור", "מעיר בסין", "משם של כלב"], answer: "מהצליל של הכדור", explain: "הכדור עושה \"פינג... פונג...\" כשהוא קופץ." }
+  { sport: "pingpong", type: "choice", q: "מאיפה הגיע השם \"פינג-פונג\"?", options: ["משם של ממציא", "מהצליל של הכדור", "מעיר בסין", "משם של כלב"], answer: "מהצליל של הכדור", explain: "הכדור עושה \"פינג... פונג...\" כשהוא קופץ." },
+
+  // 🚴 אופניים
+  { sport: "cycling", type: "yesno", q: "האופניים הראשונים, מ-1817, היו בלי דוושות?", answer: "כן", explain: "ב\"מכונת הריצה\" של קרל דרייס דחפו ברגליים על הרצפה." },
+  { sport: "cycling", type: "choice", q: "איזה צבע חולצה לובש המוביל בטור דה פראנס?", options: ["אדום", "ירוק", "צהוב", "כחול"], answer: "צהוב", explain: "החולצה הצהובה היא הסמל של המוביל בטור." },
+  { sport: "cycling", type: "yesno", q: "ברכיבת אופניים חובה לחבוש קסדה?", answer: "כן", explain: "קסדה תמיד, גם באימון וגם בתחרות." },
+  { sport: "cycling", type: "choice", q: "איזה סוג רכיבה נכנס לאולימפיאדה ב-2008?", options: ["BMX", "כביש", "מסלול", "הרים"], answer: "BMX", explain: "BMX נכנס ב-2008. אופני הרים נכנסו קודם, ב-1996." }
 ];
 
 // מדליות לפי מספר התשובות הנכונות (מהגבוה לנמוך)
 const MEDALS = [
-  { min: 20, kind: "gold", icon: "🥇", name: "מדליית זהב", text: "אתה מצוין, ענית על הכל! כל הכבוד, תמשיך ללמוד על הספורט" },
+  { min: QUIZ_LENGTH, kind: "gold", icon: "🥇", name: "מדליית זהב", text: "אתה מצוין, ענית על הכל! כל הכבוד, תמשיך ללמוד על הספורט" },
   { min: 15, kind: "silver", icon: "🥈", name: "מדליית כסף", text: "אתה מבין מאוד טוב, תמשיך לקרוא וללמוד על עולם הספורט" },
   { min: 10, kind: "bronze", icon: "🥉", name: "מדליית ארד", text: "אתה מבין טוב אבל עדיף שתלמד עוד" }
 ];
@@ -68,9 +77,9 @@ function renderQuiz(container) {
       ${sfxToggle()}
       <div class="quiz-big">🏆</div>
       <h2 class="quiz-title">כמה אתה מבין בספורט?</h2>
-      <p class="quiz-sub">${QUIZ.length} שאלות על כל הספורטים באתר. חלק מהן כן/לא וחלק עם כמה תשובות לבחירה.</p>
+      <p class="quiz-sub">${QUIZ_LENGTH} שאלות מתוך מאגר של ${QUIZ.length}, ובכל פעם שאלות קצת אחרות. חלק מהן כן/לא וחלק עם כמה תשובות לבחירה.</p>
       <ul class="medal-list">
-        <li><span>🥇</span> ${QUIZ.length} נכונות: מדליית זהב</li>
+        <li><span>🥇</span> ${QUIZ_LENGTH} נכונות: מדליית זהב</li>
         <li><span>🥈</span> 15 נכונות ומעלה: מדליית כסף</li>
         <li><span>🥉</span> 10 נכונות ומעלה: מדליית ארד</li>
       </ul>
@@ -80,8 +89,21 @@ function renderQuiz(container) {
     container.querySelector("#quiz-start").onclick = start;
   }
 
+  // בחירה מאוזנת: לפחות MIN_PER_SPORT מכל ספורט, והשאר באקראי מהשאלות שנשארו
+  function pickQuestions() {
+    const picked = [], rest = [];
+    const bySport = {};
+    shuffle(QUIZ).forEach((q) => (bySport[q.sport] = bySport[q.sport] || []).push(q));
+    Object.values(bySport).forEach((qs) => {
+      picked.push(...qs.slice(0, MIN_PER_SPORT));
+      rest.push(...qs.slice(MIN_PER_SPORT));
+    });
+    picked.push(...shuffle(rest).slice(0, Math.max(0, QUIZ_LENGTH - picked.length)));
+    return shuffle(picked.slice(0, QUIZ_LENGTH));
+  }
+
   function start() {
-    questions = shuffle(QUIZ).map((q) => ({ ...q, opts: q.type === "yesno" ? ["כן", "לא"] : shuffle(q.options) }));
+    questions = pickQuestions().map((q) => ({ ...q, opts: q.type === "yesno" ? ["כן", "לא"] : shuffle(q.options) }));
     idx = 0;
     score = 0;
     ask();
