@@ -249,7 +249,7 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 .fill { display: block; height: 100%; width: 0; background: var(--accent); }
 .seg.done .fill { width: 100%; }
 
-.controls { display: flex; align-items: center; gap: 8px; padding: 10px 12px 14px; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px 14px; }
 .ctl {
   width: 44px;
   height: 44px;
@@ -263,7 +263,30 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 .ctl:hover { background: rgba(255, 255, 255, 0.25); }
 .ctl.play { background: var(--accent); width: 52px; height: 52px; font-size: 1.3rem; }
 .ctl.flip { transform: scaleX(-1); }
-.counter { margin-inline-start: auto; font-size: 0.9rem; opacity: 0.8; }
+.counter { margin-inline-start: 4px; font-size: 0.9rem; opacity: 0.8; }
+.ctl-extra { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; }
+.ctl.toggle { width: 40px; height: 40px; font-size: 1rem; }
+.ctl.toggle.off { opacity: 0.75; background: rgba(239, 68, 68, 0.3); }
+#music-btn { position: relative; }
+#music-btn.off::after {
+  content: "";
+  position: absolute;
+  inset: 50% 8px auto;
+  height: 2px;
+  background: #fff;
+  transform: rotate(-45deg);
+}
+.speed { display: flex; align-items: center; gap: 4px; font-size: 0.9rem; }
+.speed select {
+  font: inherit;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.speed select option { color: #000; }
 
 /* ---------- אנימציות ---------- */
 .fade-in { animation: fadeIn 0.4s ease; }
