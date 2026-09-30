@@ -4,7 +4,10 @@
     { id: "history", label: "היסטוריית הספורט", icon: "📜" },
     { id: "learn", label: "למידה", icon: "🎬" }
   ];
-  const SLIDE_MS = 7000;
+  const SPEEDS = [10, 15, 20, 30]; // שניות לכל שקופית
+  const SPEED_KEY = "sports-slide-sec";
+  let slideSec = 15;
+  try { const v = +localStorage.getItem(SPEED_KEY); if (SPEEDS.includes(v)) slideSec = v; } catch (e) {}
 
   const nav = document.getElementById("sports-nav");
   const hero = document.getElementById("hero");
@@ -87,6 +90,15 @@
         <button class="ctl play" id="play" aria-label="השהה">⏸</button>
         <button class="ctl flip" id="next" aria-label="הבא">⏭</button>
         <span class="counter" id="counter">שלב 1 מתוך ${n}</span>
+        <div class="ctl-extra">
+          <label class="speed" title="זמן לכל שקופית">⏱
+            <select id="speed" aria-label="זמן לכל שקופית">${SPEEDS.map(
+              (v) => `<option value="${v}"${v === slideSec ? " selected" : ""}>${v} שנ'</option>`
+            ).join("")}</select>
+          </label>
+          <button class="ctl toggle" id="music-btn"></button>
+          <button class="ctl toggle" id="sfx-btn"></button>
+        </div>
       </div>
     </div>`;
   }
@@ -98,6 +110,8 @@
     const segs = [...document.querySelectorAll("#progress .seg")];
     const playBtn = document.getElementById("play");
     const counter = document.getElementById("counter");
+
+    const slideMs = () => slideSec * 1000;
 
     player = { i: 0, playing: true, timer: null, started: 0, elapsed: 0 };
 
@@ -127,11 +141,12 @@
       player.started = performance.now() - player.elapsed;
       const loop = (now) => {
         player.elapsed = now - player.started;
-        const pct = Math.min(100, (player.elapsed / SLIDE_MS) * 100);
+        const pct = Math.min(100, (player.elapsed / slideMs()) * 100);
         segs[player.i].querySelector(".fill").style.width = pct + "%";
-        if (player.elapsed >= SLIDE_MS) {
+        if (player.elapsed >= slideMs()) {
           if (player.i === lessons.length - 1) {
             setPlaying(false);
+            Sound.end(sport.id);
             return;
           }
           show(player.i + 1);
@@ -147,9 +162,11 @@
       playBtn.textContent = p ? "⏸" : "▶";
       playBtn.setAttribute("aria-label", p ? "השהה" : "נגן");
       document.querySelector(".player").classList.toggle("paused", !p);
+      if (p) Sound.startMusic(sport.id);
+      else Sound.stopMusic();
       if (p) {
         // בסוף המצגת, לחיצה על נגן מתחילה מההתחלה
-        if (player.i === lessons.length - 1 && player.elapsed >= SLIDE_MS) show(0);
+        if (player.i === lessons.length - 1 && player.elapsed >= slideMs()) show(0);
         else tick();
       } else cancelAnimationFrame(player.timer);
     }
@@ -158,6 +175,35 @@
     document.getElementById("next").onclick = () => show(player.i + 1);
     document.getElementById("prev").onclick = () => show(player.i - 1);
     segs.forEach((s) => (s.onclick = () => show(+s.dataset.i)));
+
+    document.getElementById("speed").onchange = (e) => {
+      slideSec = +e.target.value;
+      try { localStorage.setItem(SPEED_KEY, slideSec); } catch (err) {}
+      if (player.playing) tick();
+    };
+
+    const musicBtn = document.getElementById("music-btn");
+    const sfxBtn = document.getElementById("sfx-btn");
+    function syncToggles() {
+      musicBtn.textContent = "🎵";
+      musicBtn.classList.toggle("off", !Sound.musicOn);
+      musicBtn.setAttribute("aria-pressed", Sound.musicOn);
+      musicBtn.setAttribute("aria-label", Sound.musicOn ? "כבה מוזיקה" : "הפעל מוזיקה");
+      sfxBtn.textContent = Sound.sfxOn ? "🔊" : "🔇";
+      sfxBtn.classList.toggle("off", !Sound.sfxOn);
+      sfxBtn.setAttribute("aria-pressed", Sound.sfxOn);
+      sfxBtn.setAttribute("aria-label", Sound.sfxOn ? "כבה צלילים" : "הפעל צלילים");
+    }
+    musicBtn.onclick = () => {
+      Sound.setMusic(!Sound.musicOn);
+      if (Sound.musicOn && player.playing) Sound.startMusic(sport.id);
+      syncToggles();
+    };
+    sfxBtn.onclick = () => {
+      Sound.setSfx(!Sound.sfxOn);
+      syncToggles();
+    };
+    syncToggles();
     document.querySelector(".player").onkeydown = (e) => {
       if (e.key === " ") { e.preventDefault(); setPlaying(!player.playing); }
       // ב-RTL חץ שמאלה הוא "קדימה"
@@ -166,11 +212,14 @@
     };
 
     show(0);
+    // צליל הפתיחה של הספורט, ואחריו מוזיקת הרקע
+    Sound.startMusic(sport.id, Sound.intro(sport.id));
   }
 
   function stopPlayer() {
     if (player) cancelAnimationFrame(player.timer);
     player = null;
+    Sound.stopMusic();
   }
 
   function render() {
@@ -197,6 +246,10 @@
     const b = e.target.closest("[data-tab]");
     if (b) go(parseHash().sport.id, b.dataset.tab);
   });
+  // קליק בכל לחיצה על כפתור
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("button")) Sound.click();
+  }, true);
   window.addEventListener("hashchange", render);
   render();
 })();
