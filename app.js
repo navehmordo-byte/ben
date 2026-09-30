@@ -263,7 +263,7 @@
   });
   // קליק בכל לחיצה על כפתור
   document.addEventListener("click", (e) => {
-    if (e.target.closest("button")) Sound.click();
+    if (e.target.closest("button, .more-sports")) Sound.click();
   }, true);
   window.addEventListener("hashchange", render);
   render();

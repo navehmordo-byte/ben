@@ -153,7 +153,7 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 .quiz-big { font-size: 4rem; animation: bounce 2s ease-in-out infinite; }
 .quiz-title { margin: 8px 0; font-size: 1.6rem; }
 .quiz-sub { color: var(--muted); margin: 0 0 16px; }
-.medal-list { list-style: none; padding: 0; margin: 0 auto 20px; display: inline-grid; gap: 6px; text-align: start; }
+.medal-list { list-style: none; padding: 0; margin: 0 auto 20px; display: grid; width: fit-content; gap: 6px; text-align: start; }
 .medal-list span { font-size: 1.4rem; margin-inline-end: 6px; }
 
 .quiz-btn {
@@ -401,8 +401,46 @@ button:focus-visible, .player:focus-visible { outline: 3px solid var(--accent); 
 
 .site-footer { text-align: center; color: var(--muted); padding: 24px 16px; font-size: 0.9rem; }
 
+/* ---------- כפתור צד: לסוגי ספורט אחרים ---------- */
+/* ברירת מחדל (מסכים צרים): גלולה בפינה השמאלית התחתונה */
+.more-sports {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 20;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+.more-sports:hover { transform: translateY(-2px); }
+.more-sports:focus-visible { outline: 3px solid #a78bfa; outline-offset: 2px; }
+body { padding-bottom: 56px; }
+
+/* מסכים רחבים: לשונית שבולטת מהצד השמאלי, באמצע הגובה */
+@media (min-width: 1300px) {
+  body { padding-bottom: 0; }
+  .more-sports {
+    left: 0;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 14px 18px 14px 14px;
+    border-radius: 0 14px 14px 0;
+    transition: padding 0.2s;
+  }
+  .more-sports:hover { transform: translateY(-50%); padding-left: 22px; }
+}
+
 /* ---------- מובייל ---------- */
 @media (max-width: 600px) {
+  .more-sports { font-size: 0.9rem; }
   .quiz-options { grid-template-columns: 1fr; }
   .quiz-options.yesno { grid-template-columns: 1fr 1fr; }
   .quiz-q { font-size: 1.15rem; }
